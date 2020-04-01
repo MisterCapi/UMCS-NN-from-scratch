@@ -32,7 +32,7 @@ class NeuralNetwork():
                 # Forward propagation
                 H0 = self.sigmoid(X_values[0]*self.weigths[0] + X_values[1]*self.weigths[2] + self.bias[0])
                 H1 = self.sigmoid(X_values[0]*self.weigths[1] + X_values[1]*self.weigths[3] + self.bias[1])
-                y_predict = self.sigmoid(H0*self.weigths[4] + H1*self.weigths[5] + self.bias[2])
+                y_predict = self.sigmoid(H0*self.weigths[4] + H1*self.weigths[5] + self.bias[2]) # value of the last neuron O0
 
                 # Loss calculation
                 loss = self.mse_loss(y_value, y_predict)
