@@ -26,8 +26,6 @@ class NeuralNetwork():
     # input shape is hard coded to be --> X_train (4, 2); y_train (4)
     def train(self, X_train, y_train, lr=0.1, epochs=1000):
         for epoch in range(epochs):
-            result = []
-            losses = []
             for X_values, y_value in zip(X_train, y_train):
                 # Forward propagation
                 H0 = self.sigmoid(X_values[0]*self.weigths[0] + X_values[1]*self.weigths[2] + self.bias[0])
@@ -35,7 +33,7 @@ class NeuralNetwork():
                 y_predict = self.sigmoid(H0*self.weigths[4] + H1*self.weigths[5] + self.bias[2]) # value of the last neuron O0
 
                 # Loss calculation
-                loss = self.mse_loss(y_value, y_predict)
+                # loss = self.mse_loss(y_value, y_predict)
                 derivative_mse = self.mse_loss(y_value, y_predict, derivative=True)
 
                 dWeigths = np.zeros((6))
@@ -56,6 +54,9 @@ class NeuralNetwork():
                 dWeigths[2] = X_values[0] * self.bias[1]
                 dWeigths[3] = X_values[1] * self.bias[1]
 
+                if epoch % 100 == 0:
+                    result = [self.predict(x) for x in X_train]
+
                 # Weigths correction
                 self.weigths[0] -= lr * dWeigths[0] * dH0 * dWeigths[4] * derivative_mse
                 self.weigths[1] -= lr * dWeigths[1] * dH1 * dWeigths[5] * derivative_mse
@@ -64,11 +65,8 @@ class NeuralNetwork():
                 self.weigths[4] -= lr * dWeigths[4] * derivative_mse
                 self.weigths[5] -= lr * dWeigths[5] * derivative_mse
 
-                if epoch % 100 == 0:
-                    losses.append(loss)
-                    result.append(y_predict)
             if epoch % 100 == 0:
-                print(f'Loss {sum(losses)/4:1.4f}\n{result}')
+                print(f'Loss {self.mse_loss(y_train, result):1.4f}\n{result}')
 
 
 X_train = np.array([[0, 0],
