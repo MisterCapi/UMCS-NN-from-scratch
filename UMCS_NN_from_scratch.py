@@ -30,40 +30,49 @@ class NeuralNetwork():
                 # Forward propagation
                 H0 = self.sigmoid(X_values[0]*self.weigths[0] + X_values[1]*self.weigths[2] + self.bias[0])
                 H1 = self.sigmoid(X_values[0]*self.weigths[1] + X_values[1]*self.weigths[3] + self.bias[1])
-                y_predict = self.sigmoid(H0*self.weigths[4] + H1*self.weigths[5] + self.bias[2]) # value of the last neuron O0
+                y_predict = self.sigmoid(H0*self.weigths[4] + H1*self.weigths[5] + self.bias[2]) # value of the last neuron O0 after activation
 
-                # Loss calculation
-                # loss = self.mse_loss(y_value, y_predict)
+                # zachowane sumy wazone
+                H0_weighted_sum = X_values[0]*self.weigths[0] + X_values[1]*self.weigths[2]
+                H1_weighted_sum = X_values[0]*self.weigths[1] + X_values[1]*self.weigths[3]
+                O0_weighted_sum = H0*self.weigths[4] + H1*self.weigths[5]
+
                 derivative_mse = self.mse_loss(y_value, y_predict, derivative=True)
 
                 dWeigths = np.zeros((6))
 
                 # Deltas for weigths and biases
-                self.bias[2] = self.sigmoid(y_predict, derivative=True)
+
+                # MATT1: pochodne liczysz nie z wartosci wzmocnionej tylko z sumy wazonej, czyli dodaj sobie jeszcze zmienne sum wazonych ktore sobie przechowasz
+                self.bias[2] = self.sigmoid(O0_weighted_sum, derivative=True)
                 dWeigths[5] = H1 * self.bias[2]
                 dWeigths[4] = H0 * self.bias[2]
 
                 dH0 = dWeigths[4] * self.bias[2]
                 dH1 = dWeigths[5] * self.bias[2]
 
-                self.bias[0] = self.sigmoid(H0, derivative=True)
+                self.bias[0] = self.sigmoid(H0_weighted_sum, derivative=True)
                 dWeigths[0] = X_values[0] * self.bias[0]
                 dWeigths[1] = X_values[1] * self.bias[0]
 
-                self.bias[1] = self.sigmoid(H1, derivative=True)
+                self.bias[1] = self.sigmoid(H1_weighted_sum, derivative=True)
                 dWeigths[2] = X_values[0] * self.bias[1]
                 dWeigths[3] = X_values[1] * self.bias[1]
-
-                if epoch % 100 == 0:
-                    result = [self.predict(x) for x in X_train]
-
                 # Weigths correction
-                self.weigths[0] -= lr * dWeigths[0] * dH0 * dWeigths[4] * derivative_mse
-                self.weigths[1] -= lr * dWeigths[1] * dH1 * dWeigths[5] * derivative_mse
-                self.weigths[2] -= lr * dWeigths[2] * dH0 * dWeigths[4] * derivative_mse
-                self.weigths[3] -= lr * dWeigths[3] * dH1 * dWeigths[5] * derivative_mse
+
+                #MATT 3: wage aktualizujemy o jej rozncie
+                #w ten sposob ze self.weigths[0] -= lr * dWeigths[0] * dH0  * derivative_mse
+
+                self.weigths[0] -= lr * dWeigths[0] * dH0 * derivative_mse
+                self.weigths[1] -= lr * dWeigths[1] * dH1 * derivative_mse
+                self.weigths[2] -= lr * dWeigths[2] * dH0 * derivative_mse
+                self.weigths[3] -= lr * dWeigths[3] * dH1 * derivative_mse
                 self.weigths[4] -= lr * dWeigths[4] * derivative_mse
                 self.weigths[5] -= lr * dWeigths[5] * derivative_mse
+
+                #MATT 2 to uruchom po aktualizacji wag
+                if epoch % 100 == 0:
+                    result = [self.predict(x) for x in X_train]
 
             if epoch % 100 == 0:
                 print(f'Loss {self.mse_loss(y_train, result):1.4f}\n{result}')
