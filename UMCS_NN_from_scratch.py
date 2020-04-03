@@ -48,7 +48,8 @@ class NeuralNetwork():
                 self.bias[2] = self.sigmoid(O0_weighted_sum, derivative=True)
                 dWeigths[5] = H1 * self.bias[2]
                 dWeigths[4] = H0 * self.bias[2]
-
+                
+                #tutaj dWeights zamien na Weights -> ten blad co wyslalem na grupie
                 dH0 = dWeigths[4] * self.bias[2]
                 dH1 = dWeigths[5] * self.bias[2]
                 
