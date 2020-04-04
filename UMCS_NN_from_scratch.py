@@ -33,9 +33,9 @@ class NeuralNetwork():
                 y_predict = self.sigmoid(H0*self.weigths[4] + H1*self.weigths[5] + self.bias[2]) # value of the last neuron O0 after activation
 
                 # zachowane sumy wazone
-                H0_weighted_sum = X_values[0]*self.weigths[0] + X_values[1]*self.weigths[2]
-                H1_weighted_sum = X_values[0]*self.weigths[1] + X_values[1]*self.weigths[3]
-                O0_weighted_sum = H0*self.weigths[4] + H1*self.weigths[5]
+                H0_weighted_sum = X_values[0]*self.weigths[0] + X_values[1]*self.weigths[2] + self.bias[0]
+                H1_weighted_sum = X_values[0]*self.weigths[1] + X_values[1]*self.weigths[3] + self.bias[1]
+                O0_weighted_sum = H0*self.weigths[4] + H1*self.weigths[5] + self.bias[2]
 
                 derivative_mse = self.mse_loss(y_value, y_predict, derivative=True)
 
@@ -44,19 +44,19 @@ class NeuralNetwork():
 
                 # Deltas for weigths and biases
                 dBias[2] = self.sigmoid(O0_weighted_sum, derivative=True)
-                dWeigths[5] = H1 * self.bias[2]
-                dWeigths[4] = H0 * self.bias[2]
+                dWeigths[5] = H1 * self.sigmoid(O0_weighted_sum, derivative=True)
+                dWeigths[4] = H0 * self.sigmoid(O0_weighted_sum, derivative=True)
 
-                dH0 = self.weigths[4] * self.bias[2]
-                dH1 = self.weigths[5] * self.bias[2]
+                dH0 = self.weigths[4] * self.sigmoid(O0_weighted_sum, derivative=True)
+                dH1 = self.weigths[5] * self.sigmoid(O0_weighted_sum, derivative=True)
 
                 dBias[0] = self.sigmoid(H0_weighted_sum, derivative=True)
-                dWeigths[0] = X_values[0] * self.bias[0]
-                dWeigths[2] = X_values[1] * self.bias[0]
+                dWeigths[0] = X_values[0] * self.sigmoid(H0_weighted_sum, derivative=True)
+                dWeigths[2] = X_values[1] * self.sigmoid(H0_weighted_sum, derivative=True)
 
                 dBias[1] = self.sigmoid(H1_weighted_sum, derivative=True)
-                dWeigths[1] = X_values[0] * self.bias[1]
-                dWeigths[3] = X_values[1] * self.bias[1]
+                dWeigths[1] = X_values[0] * self.sigmoid(H1_weighted_sum, derivative=True)
+                dWeigths[3] = X_values[1] * self.sigmoid(H1_weighted_sum, derivative=True)
 
                 # Weigths correction
                 self.weigths[0] -= lr * dWeigths[0] * dH0 * derivative_mse
@@ -71,7 +71,7 @@ class NeuralNetwork():
                 self.bias[2] -= lr * dBias[2] * derivative_mse
 
                 if epoch % 100 == 0:
-                    result = [self.predict(x) for x in X_train]
+                    result = [self.predict(x) > 0.5 for x in X_train]
                     print(f'Loss {self.mse_loss(y_train, result):1.4f}\n{result}')
 
 
@@ -80,7 +80,7 @@ X_train = np.array([[0, 0],
                     [1, 0],
                     [1, 1]])
 
-y_train = np.array([0, 1, 1, 1])
+y_train = np.array([0, 0, 0, 1])
 
 nn = NeuralNetwork()
 
