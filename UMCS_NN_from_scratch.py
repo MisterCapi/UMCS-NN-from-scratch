@@ -44,19 +44,19 @@ class NeuralNetwork():
 
                 # Deltas for weigths and biases
                 dBias[2] = self.sigmoid(O0_weighted_sum, derivative=True)
-                dWeigths[5] = H1 * self.sigmoid(O0_weighted_sum, derivative=True)
-                dWeigths[4] = H0 * self.sigmoid(O0_weighted_sum, derivative=True)
+                dWeigths[5] = H1 * dBias[2]
+                dWeigths[4] = H0 * dBias[2]
 
-                dH0 = self.weigths[4] * self.sigmoid(O0_weighted_sum, derivative=True)
-                dH1 = self.weigths[5] * self.sigmoid(O0_weighted_sum, derivative=True)
+                dH0 = self.weigths[4] * dBias[2]
+                dH1 = self.weigths[5] * dBias[2]
 
                 dBias[0] = self.sigmoid(H0_weighted_sum, derivative=True)
-                dWeigths[0] = X_values[0] * self.sigmoid(H0_weighted_sum, derivative=True)
-                dWeigths[2] = X_values[1] * self.sigmoid(H0_weighted_sum, derivative=True)
+                dWeigths[0] = X_values[0] * dBias[0]
+                dWeigths[2] = X_values[1] * dBias[0]
 
                 dBias[1] = self.sigmoid(H1_weighted_sum, derivative=True)
-                dWeigths[1] = X_values[0] * self.sigmoid(H1_weighted_sum, derivative=True)
-                dWeigths[3] = X_values[1] * self.sigmoid(H1_weighted_sum, derivative=True)
+                dWeigths[1] = X_values[0] * dBias[1]
+                dWeigths[3] = X_values[1] * dBias[1]
 
                 # Weigths correction
                 self.weigths[0] -= lr * dWeigths[0] * dH0 * derivative_mse
@@ -80,7 +80,7 @@ X_train = np.array([[0, 0],
                     [1, 0],
                     [1, 1]])
 
-y_train = np.array([0, 0, 0, 1])
+y_train = np.array([0, 1, 1, 1])
 
 nn = NeuralNetwork()
 
